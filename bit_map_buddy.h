@@ -1,5 +1,6 @@
 #pragma once
 #include "bit_map.h"
+#include "pool_allocator.h"
 #define MAX_LEVELS 16
 
 typedef struct BuddyItem {
@@ -13,6 +14,7 @@ typedef struct BuddyItem {
 
 typedef struct  {
   BitMap* bitmap;
+  PoolAllocator bitmap_allocator;
   int num_levels;
   char* memory; // the memory area to be managed
   int min_bucket_size; // the minimum page of RAM that can be returned

@@ -56,8 +56,16 @@ void BuddyAllocator_init(BuddyAllocator* alloc,
   printf("\tbucket size:%d\n", min_bucket_size);
   printf("\tmanaged memory %d bytes\n", (1<<num_levels)*min_bucket_size);
   
+  char *start=buffer;
+  PoolAllocatorResult init_result=PoolAllocator_init(&alloc->bitmap_allocator,
+						     sizeof(char)/8,
+						     bitmap_items,
+						     start,
+						     bitmap_size);
+  printf("%s\n",PoolAllocator_strerror(init_result));
+
   // initializing bitmap with default bit = 0
-  BitMap_init(alloc->bitmap, bitmap_items,(uint8_t*) buffer);
+  BitMap_init(alloc->bitmap, bitmap_items,buffer);
   printf("inizializzazione");
   BitMap_setBit(alloc->bitmap, 1, 0);
   printf("primo set bit");
