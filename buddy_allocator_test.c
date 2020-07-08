@@ -10,7 +10,7 @@ char buffer[BUFFER_SIZE]; // 100 Kb buffer to handle memory should be enough
 char memory[MEMORY_SIZE];
 
 BuddyAllocator alloc;
-int main(int argc, char** argv) {
+int WinMain(int argc, char** argv) {
 
   //1 we see if we have enough memory for the buffers
   int req_size=BuddyAllocator_calcSize(BUDDY_LEVELS);

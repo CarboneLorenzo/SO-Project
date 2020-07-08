@@ -28,7 +28,7 @@ int startIdx(int idx){
 // computes the size in bytes for the allocator
 int BuddyAllocator_calcSize(int num_levels) {
   int bitmap_items=(1<<(num_levels+1))-1; // maximum number of allocations, used to determine the max list items
-  int bitmap_size=BitMap_getBytes(bitmap_items)+(sizeof(int)*(bitmap_items));
+  int bitmap_size=BitMap_getBytes(bitmap_items)+((sizeof(BuddyItem)+sizeof(int))*(bitmap_items));
   return bitmap_size;
 }
 
@@ -47,45 +47,48 @@ void BuddyAllocator_init(BuddyAllocator* alloc,
   // we need enough memory to handle internal structures
   assert (buffer_size>=BuddyAllocator_calcSize(num_levels));
 
-  int bitmap_items=(1<<(num_levels+1))-1; // maximum number of allocations, used to determine the max list items
-  int bitmap_size=BitMap_getBytes(bitmap_items)+(sizeof(int)*(bitmap_items));
+  int bitmap_items=1<<(num_levels+1); // maximum number of allocations, used to determine the max list items
+  int bitmap_size=BitMap_getBytes(bitmap_items)+((sizeof(BuddyItem)+sizeof(int))*(bitmap_items));
 
   printf("BUDDY INITIALIZING\n");
   printf("\tlevels: %d", num_levels);
   printf("\tmax entries %d bytes\n", bitmap_size);
   printf("\tbucket size:%d\n", min_bucket_size);
   printf("\tmanaged memory %d bytes\n", (1<<num_levels)*min_bucket_size);
-  
-  char *start=buffer;
-  PoolAllocatorResult init_result=PoolAllocator_init(&alloc->bitmap_allocator,
-						     sizeof(char)/8,
-						     bitmap_items,
-						     start,
-						     bitmap_size);
-  printf("%s\n",PoolAllocator_strerror(init_result));
 
   // initializing bitmap with default bit = 0
-  BitMap_init(alloc->bitmap, bitmap_items,buffer);
-  printf("inizializzazione");
-  BitMap_setBit(alloc->bitmap, 1, 0);
-  printf("primo set bit");
+  uint8_t* start_bitmap = buffer;
+  BitMap_init(&alloc->bitmap, bitmap_items, start_bitmap);
+  
   int i;
   for(i=2; i<bitmap_items; i++) {
-    BitMap_setBit(alloc->bitmap, i, 1);
+    BitMap_setBit(&alloc->bitmap, i, 1);
   }
-  printf("bitmap initialized\n");
+  BitMap_setBit(&alloc->bitmap, 1, 0);
+  BitMap_setBit(&alloc->bitmap, 9, 0);
+  BitMap_setBit(&alloc->bitmap, 2, 1);
+
+  for(i=2; i<bitmap_items; i++) {
+    int v=BitMap_bit(&alloc->bitmap, i);
+    printf("bit: %d, valore: %d\n", i, v);
+  }
 };
 
 int find_bit(BitMap* bitmap, int level, int actual_level) {
-  if(actual_level<0) {                          //caso base: nessun buddy abbastanza grande libero->errore
+  printf("cerco blocco nel livello: %d\n", actual_level);
+  if(actual_level<0) {                        //caso base: nessun buddy abbastanza grande libero->errore
+    printf("errore, livello non valido\n");
     return -1;
   }
   int start= 1<<actual_level;                   //definisco inizio e fine degli idx di questo livello
   int stop= 1<<(actual_level+1);                //
   int bit,i;
+  printf("start: %d, stop: %d\n", start, stop);
   for(i=start; i<stop; i++) {               //li scandisco per vedere se c'è un bit a 0 (buddy libero)
     bit = BitMap_bit(bitmap, i);
+    printf("bit: %d, valore: %d\n",i, bit);
     if(bit==0) {
+      printf("trovato bit a livello: %d\n", actual_level);
       if(level==actual_level) return i;         //trovato buddy libero nel livello desiderato
       else{
         BitMap_setBit(bitmap, i, 1);
@@ -95,11 +98,15 @@ int find_bit(BitMap* bitmap, int level, int actual_level) {
       }
     }
   }
+  printf("non trovato, salgo di livello\n");
   int res = find_bit(bitmap, level, actual_level-1); //non ho trovato un buddy libero a questo livello, quindi vado a quelli sopra
+  printf("sceso di livello\n");
   if(res!=-1) {
     int res_child = (res*2)+1;
-    if(level==actual_level) return res_child;       //ho diviso vari genitori ed ora ho un bit a 0 nel livello desiderato, lo ritorno
-    else{
+    if(level==actual_level) {
+      printf("trovato");
+      return res_child;       //ho diviso vari genitori ed ora ho un bit a 0 nel livello desiderato, lo ritorno
+    }else{
       BitMap_setBit(bitmap, res_child, 1);
       BitMap_setBit(bitmap, (res_child*2)+1 , 0);
       BitMap_setBit(bitmap, buddyIdx((res_child*2)+1), 0);
@@ -124,16 +131,14 @@ void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size) {
          size, level);
 
   //trova mem
-  int idx = find_bit(alloc->bitmap, level, level);
+  int idx = find_bit(&alloc->bitmap, level, level);
   if(idx==-1) {
     printf("errore, non c'è abbastanza memoria");
     return NULL;
   }else{
+    printf("blocco trovato, idx: %d\n", idx);
     void* start_memory;
-    int* info;
     start_memory = alloc->memory + ((idx-(1<<levelIdx(idx))) << (alloc->num_levels-level) )*alloc->min_bucket_size;
-    info = start_memory;
-    *info = level;
     return start_memory+8;
   }
 }

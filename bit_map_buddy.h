@@ -13,8 +13,7 @@ typedef struct BuddyItem {
 } BuddyItem;
 
 typedef struct  {
-  BitMap* bitmap;
-  PoolAllocator bitmap_allocator;
+  BitMap bitmap;
   int num_levels;
   char* memory; // the memory area to be managed
   int min_bucket_size; // the minimum page of RAM that can be returned

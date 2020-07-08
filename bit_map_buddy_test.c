@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #define BUFFER_SIZE 102400
-#define BUDDY_LEVELS 9
+#define BUDDY_LEVELS 6
 #define MEMORY_SIZE (1024*1024)
 #define MIN_BUCKET_SIZE (MEMORY_SIZE>>(BUDDY_LEVELS))
 
@@ -25,12 +25,12 @@ int WinMain(int argc, char** argv) {
                       MIN_BUCKET_SIZE);
   printf("DONE\n");
 
-  void* p1=BuddyAllocator_malloc(&alloc, 100);
-  void* p2=BuddyAllocator_malloc(&alloc, 100);
-  void* p3=BuddyAllocator_malloc(&alloc, 100000);
-  BuddyAllocator_free(&alloc, p1);
-  BuddyAllocator_free(&alloc, p2);
-  BuddyAllocator_free(&alloc, p3);
+  //void* p1=BuddyAllocator_malloc(&alloc, 100);
+  //void* p2=BuddyAllocator_malloc(&alloc, 100);
+  //void* p3=BuddyAllocator_malloc(&alloc, 10000);
+  //BuddyAllocator_free(&alloc, p1);
+  //BuddyAllocator_free(&alloc, p2);
+  //BuddyAllocator_free(&alloc, p3);
   return 0;
   
 }
