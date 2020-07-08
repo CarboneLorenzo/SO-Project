@@ -66,7 +66,7 @@ void BuddyAllocator_init(BuddyAllocator* alloc,
   }
   BitMap_setBit(&alloc->bitmap, 1, 0);
 
-  //BitMap_print(&alloc->bitmap);
+  BitMap_print(&alloc->bitmap);
 };
 
 int find_bit(BitMap* bitmap, int level, int actual_level) {
@@ -135,13 +135,12 @@ void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size) {
     return NULL;
   }else{
     printf("blocco trovato, idx: %d\n", idx);
-    char* start_memory;
-    start_memory = alloc->memory + ((idx-(1<<levelIdx(idx))) << (alloc->num_levels-level) )*alloc->min_bucket_size;
-    void** info = start_memory;
-    *info = idx;
-    //BitMap_print(&alloc->bitmap);
+    int* start_memory;
+    start_memory =  alloc->memory + ((idx-(1<<levelIdx(idx))) << (alloc->num_levels-level) )*alloc->min_bucket_size;
+    int** info = (int**) start_memory;
+    (int) *info = idx;
+    BitMap_print(&alloc->bitmap);
     printf("giving %p\n", start_memory+4);
-    printf("giving %d\n", *info);
     return start_memory+4;
   }
 }
@@ -164,16 +163,14 @@ void free_bit(BuddyAllocator* alloc, int idx) {
 //releases allocated memory
 void BuddyAllocator_free(BuddyAllocator* alloc, void* mem) {
   printf("freeing %p\n", mem);
-  char* p=(char*) mem;
+  int* p= (int*) mem;
   p=p-4;
   int idx = *p;
-  int idx2 = *p+4;
-  int idx3 = *p-4;
+  
   printf("idx: %d\n", idx);
-  printf("idx: %d\n", idx2);
-  printf("idx: %d\n", idx3);
+  
   free_bit(alloc, idx);
-  //BitMap_print(&alloc->bitmap);
+  BitMap_print(&alloc->bitmap);
   return; 
 }
 

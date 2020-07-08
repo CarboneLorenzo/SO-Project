@@ -1,7 +1,7 @@
 #pragma once
 #include "bit_map.h"
 #include "pool_allocator.h"
-#define MAX_LEVELS 16
+#define MAX_LEVELS 14
 
 
 typedef struct  {

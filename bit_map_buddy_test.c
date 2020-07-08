@@ -24,15 +24,18 @@ int WinMain(int argc, char** argv) {
                       memory,
                       MIN_BUCKET_SIZE);
   printf("DONE\n");
-
-  //void* p1=BuddyAllocator_malloc(&alloc, 100);
+  
+  void* p1=BuddyAllocator_malloc(&alloc, 100);
+  void* p5=BuddyAllocator_malloc(&alloc, 100);
   void* p4=BuddyAllocator_malloc(&alloc, 5000);
-  //void* p2=BuddyAllocator_malloc(&alloc, 10000);
-  //void* p3=BuddyAllocator_malloc(&alloc, 100000);
-  //BuddyAllocator_free(&alloc, p1);
+  void* p2=BuddyAllocator_malloc(&alloc, 10000);
+  void* p3=BuddyAllocator_malloc(&alloc, 100000);
+  BuddyAllocator_free(&alloc, p1);
+  BuddyAllocator_free(&alloc, p5);
   BuddyAllocator_free(&alloc, p4);
-  //BuddyAllocator_free(&alloc, p2);
-  //BuddyAllocator_free(&alloc, p3);
+  BuddyAllocator_free(&alloc, p2);
+  BuddyAllocator_free(&alloc, p3);
+  
   return 0;
   
 }
