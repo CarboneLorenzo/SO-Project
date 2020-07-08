@@ -65,13 +65,6 @@ void BuddyAllocator_init(BuddyAllocator* alloc,
     BitMap_setBit(&alloc->bitmap, i, 1);
   }
   BitMap_setBit(&alloc->bitmap, 1, 0);
-  BitMap_setBit(&alloc->bitmap, 9, 0);
-  BitMap_setBit(&alloc->bitmap, 2, 1);
-
-  for(i=2; i<bitmap_items; i++) {
-    int v=BitMap_bit(&alloc->bitmap, i);
-    printf("bit: %d, valore: %d\n", i, v);
-  }
 };
 
 int find_bit(BitMap* bitmap, int level, int actual_level) {
@@ -139,6 +132,12 @@ void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size) {
     printf("blocco trovato, idx: %d\n", idx);
     void* start_memory;
     start_memory = alloc->memory + ((idx-(1<<levelIdx(idx))) << (alloc->num_levels-level) )*alloc->min_bucket_size;
+    int x;
+    int bitmap_items=1<<level;
+    for(x=1; x<=bitmap_items; x++) {
+      int valore = BitMap_bit(&alloc->bitmap, x);
+      printf("bit: %d, valore: %d\n", x, valore);
+    }
     return start_memory+8;
   }
 }
