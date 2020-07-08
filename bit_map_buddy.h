@@ -3,14 +3,6 @@
 #include "pool_allocator.h"
 #define MAX_LEVELS 16
 
-typedef struct BuddyItem {
-  int idx;   // tree index
-  int level; // level for the buddy
-  char* start; // start of memory
-  int size;
-  struct BuddyItem* buddy_ptr;
-  struct BuddyItem* parent_ptr;
-} BuddyItem;
 
 typedef struct  {
   BitMap bitmap;

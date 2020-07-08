@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "bit_map.h"
 #include <stdio.h>
+#include <math.h>
 
 // returns the number of bytes to store bits booleans
 int BitMap_getBytes(int bits){
@@ -13,7 +14,9 @@ int BitMap_getBytes(int bits){
 void BitMap_init(BitMap* bit_map, int num_bits, uint8_t* buffer){
   bit_map->buffer=buffer;
   bit_map->num_bits=num_bits;
-  bit_map->buffer_size=BitMap_getBytes(num_bits);;
+  printf("num bits: %d\n",bit_map->num_bits );
+  bit_map->buffer_size=BitMap_getBytes(num_bits);
+  printf("buffer size: %d\n",bit_map->buffer_size);
 }
 
 // sets a the bit bit_num in the bitmap
@@ -37,3 +40,17 @@ int BitMap_bit(const BitMap* bit_map, int bit_num){
   int bit_in_byte=bit_num&0x07;
   return (bit_map->buffer[byte_num] & (1<<bit_in_byte))!=0;
 }
+
+void BitMap_print(const BitMap* bit_map) {
+  int i,bit, level;
+  printf("printing bitmap:\n");
+  for(i=1; i<bit_map->num_bits; i++){
+    level= (int)floor(log2(i));
+    if((1<<level) == i) printf("--");
+    bit = BitMap_bit(bit_map, i);
+    printf("%d",bit);
+  }
+  printf("\n");
+  return;
+}
+

@@ -20,3 +20,5 @@ void BitMap_setBit(BitMap* bit_map, int bit_num, int status);
 
 // inspects the status of the bit bit_num
 int BitMap_bit(const BitMap* bit_map, int bit_num);
+
+void BitMap_print(const BitMap* bit_map);
