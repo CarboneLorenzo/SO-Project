@@ -140,9 +140,8 @@ void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size) {
     printf("blocco trovato, idx: %d\n", idx);
     
     int* start_memory;
-    start_memory =  alloc->memory + ((idx-(1<<levelIdx(idx))) << (alloc->num_levels-level) )*alloc->min_bucket_size;
-    int** info = (int**) start_memory;
-    (int) *info = idx;
+    start_memory =  (int*) (alloc->memory + ((idx-(1<<levelIdx(idx))) << (alloc->num_levels-level) )*alloc->min_bucket_size);
+    *start_memory = idx;
     printf("giving %p\n", start_memory+4);
     #if DEBUG
     BitMap_print(&alloc->bitmap);
