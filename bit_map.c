@@ -43,10 +43,14 @@ int BitMap_bit(const BitMap* bit_map, int bit_num){
 
 void BitMap_print(const BitMap* bit_map) {
   int i,bit, level;
+  int l = 0;
   printf("printing bitmap:\n");
   for(i=1; i<bit_map->num_bits; i++){
     level= (int)floor(log2(i));
-    if((1<<level) == i) printf("--");
+    if((1<<level) == i) {
+      printf("\n--level: %d--", l);
+      l++;
+    }
     bit = BitMap_bit(bit_map, i);
     printf("%d",bit);
   }

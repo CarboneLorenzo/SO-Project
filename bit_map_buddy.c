@@ -3,6 +3,8 @@
 #include <math.h> // for floor and log2
 #include "bit_map_buddy.h"
 
+#define DEBUG 0
+
 // these are trivial helpers to support you in case you want
 // to do a bitmap implementation
 int levelIdx(size_t idx){
@@ -65,8 +67,9 @@ void BuddyAllocator_init(BuddyAllocator* alloc,
     BitMap_setBit(&alloc->bitmap, i, 1);
   }
   BitMap_setBit(&alloc->bitmap, 1, 0);
-
+  #if DEBUG
   BitMap_print(&alloc->bitmap);
+  #endif
 };
 
 int find_bit(BitMap* bitmap, int level, int actual_level) {
@@ -135,12 +138,15 @@ void* BuddyAllocator_malloc(BuddyAllocator* alloc, int size) {
     return NULL;
   }else{
     printf("blocco trovato, idx: %d\n", idx);
+    
     int* start_memory;
     start_memory =  alloc->memory + ((idx-(1<<levelIdx(idx))) << (alloc->num_levels-level) )*alloc->min_bucket_size;
     int** info = (int**) start_memory;
     (int) *info = idx;
-    BitMap_print(&alloc->bitmap);
     printf("giving %p\n", start_memory+4);
+    #if DEBUG
+    BitMap_print(&alloc->bitmap);
+    #endif
     return start_memory+4;
   }
 }
@@ -162,15 +168,29 @@ void free_bit(BuddyAllocator* alloc, int idx) {
 }
 //releases allocated memory
 void BuddyAllocator_free(BuddyAllocator* alloc, void* mem) {
+  if(mem==NULL) {
+    printf("errore, puntatore vuoto\n");
+    return;
+  }
   printf("freeing %p\n", mem);
   int* p= (int*) mem;
   p=p-4;
   int idx = *p;
-  
   printf("idx: %d\n", idx);
-  
+  int bitmap_items=1<<(alloc->num_levels+1);
+  if(!(idx>0 && idx<bitmap_items)) {
+    printf("errore, indice di memoria non riconosciuto\n");
+    return;
+  }
+  if(!(BitMap_bit(&alloc->bitmap, idx)==1)) {
+    printf("memoria non assegnata in precedenza\n");
+    return;
+  }
   free_bit(alloc, idx);
+  *p = 0;
+  #if DEBUG
   BitMap_print(&alloc->bitmap);
+  #endif
   return; 
 }
 
